@@ -208,7 +208,7 @@
   scene.background = new THREE.Color('#050812');
 
   var camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 10000);
-  camera.position.set(0, 1.2, 4);
+  camera.position.set(0, 15, 55);
 
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -238,6 +238,87 @@
   scene.add(tiltGroup);
   tiltGroup.add(planet);
 
+  // ═══ NEPTUNE MAJOR MOON: TRITON (retrograde) ═══
+  // Scene scale: Neptune radius 1.5 = 24622 km real, so 1 unit = 16,415 km.
+  // Triton orbits at 354,759 km real = 21.6 units out.
+  // Retrograde orbit (inclination 156.8 deg) — rare for a large moon.
+  var SCENE_UNIT_KM = 24622 / 1.5;
+  var TRITON = {
+    name: 'Triton',
+    a_km: 354759,
+    e: 0.000016,
+    period_days: -5.877,  // negative = retrograde
+    color: 0xd0cab8,
+    radius: 0.10,
+  };
+  TRITON.a = TRITON.a_km / SCENE_UNIT_KM;
+  TRITON.period = TRITON.period_days * 86400;
+
+  var tritonMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(TRITON.radius, 24, 16),
+    new THREE.MeshStandardMaterial({ color: TRITON.color, roughness: 0.85 })
+  );
+  tiltGroup.add(tritonMesh);
+  // Triton orbit line (retrograde, visualized as the same ring)
+  (function tritonOrbit() {
+    var pts = [];
+    for (var k = 0; k <= 128; k++) {
+      var th = (k / 128) * Math.PI * 2;
+      pts.push(new THREE.Vector3(TRITON.a * Math.cos(th), 0, TRITON.a * Math.sin(th)));
+    }
+    tiltGroup.add(new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: TRITON.color, transparent: true, opacity: 0.35 })
+    ));
+  })();
+
+  // ═══ NEPTUNE RING ARCS (5 narrow arcs in the Adams ring) ═══
+  // Adams ring at ~62,932 km = 3.83 units
+  (function ringArcs() {
+    var arcR = 62932 / SCENE_UNIT_KM;
+    // 5 narrow arc segments (Courage, Liberte, Egalite 1, Egalite 2, Fraternite)
+    var arcs = [
+      { start: 0,   end: 10 },
+      { start: 15,  end: 25 },
+      { start: 40,  end: 55 },
+      { start: 60,  end: 75 },
+      { start: 85,  end: 92 },
+    ];
+    arcs.forEach(function(a) {
+      var pts = [];
+      for (var k = 0; k <= 32; k++) {
+        var th = (a.start + (a.end - a.start) * (k / 32)) * Math.PI / 180;
+        pts.push(new THREE.Vector3(arcR * Math.cos(th), 0, arcR * Math.sin(th)));
+      }
+      tiltGroup.add(new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color: 0x8899bb, transparent: true, opacity: 0.6 })
+      ));
+    });
+  })();
+
+  function solveKepler(M, e) {
+    var E = M;
+    for (var i = 0; i < 12; i++) {
+      var f = E - e * Math.sin(E) - M;
+      var fp = 1 - e * Math.cos(E);
+      E -= f / fp;
+    }
+    return E;
+  }
+
+  var SCENE_EPOCH_SEC = Date.now() / 1000;
+  function updateMoons() {
+    var TIME_SCALE = 1500;
+    var simTime = (Date.now() / 1000 - SCENE_EPOCH_SEC) * TIME_SCALE;
+    var n = (Math.PI * 2) / TRITON.period;  // negative n -> retrograde direction
+    var M = (n * simTime) % (Math.PI * 2);
+    var E = solveKepler(M, TRITON.e);
+    var nu = 2 * Math.atan2(Math.sqrt(1 + TRITON.e) * Math.sin(E/2), Math.sqrt(1 - TRITON.e) * Math.cos(E/2));
+    var r = TRITON.a * (1 - TRITON.e * Math.cos(E));
+    tritonMesh.position.set(r * Math.cos(nu), 0, r * Math.sin(nu));
+  }
+
   // Subtle starfield
   (function stars() {
     var geo = new THREE.BufferGeometry();
@@ -261,7 +342,7 @@
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
   controls.minDistance = 2.2;
-  controls.maxDistance = 40;
+  controls.maxDistance = 300;
 
   // Resize
   window.addEventListener('resize', function () {
@@ -274,6 +355,7 @@
   function tick() {
     requestAnimationFrame(tick);
     planet.rotation.y += 0.001540;
+    updateMoons();
     controls.update();
     renderer.render(scene, camera);
   }
