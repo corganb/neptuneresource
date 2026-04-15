@@ -247,42 +247,70 @@
   scene.add(tiltGroup);
   tiltGroup.add(planet);
 
-  // ═══ NEPTUNE MAJOR MOON: TRITON (retrograde) ═══
+  // ═══ NEPTUNE MOONS ═══
   // Scene scale: Neptune radius 1.5 = 24622 km real, so 1 unit = 16,415 km.
-  // Triton orbits at 354,759 km real = 21.6 units out.
-  // Retrograde orbit (inclination 156.8 deg) — rare for a large moon.
+  // Real semi-major axes and periods from NASA fact sheet. Triton has a
+  // negative period (retrograde) and is the only major moon; Despina,
+  // Galatea, Larissa, Proteus are inner regular moons just outside the
+  // Adams ring.
   var SCENE_UNIT_KM = 24622 / 1.5;
-  var TRITON = {
-    name: 'Triton',
-    a_km: 354759,
-    e: 0.000016,
-    period_days: -5.877,  // negative = retrograde
-    color: 0xd0cab8,
-    radius: 0.10,
-  };
-  TRITON.a = TRITON.a_km / SCENE_UNIT_KM;
-  TRITON.period = TRITON.period_days * 86400;
+  var NEPTUNE_MOONS = [
+    { name: 'Despina',  a_km: 52526,  e: 0.00014, period_days: 0.3347, color: 0xb0a890, radius: 0.04 },
+    { name: 'Galatea',  a_km: 61953,  e: 0.00008, period_days: 0.4287, color: 0xb8b098, radius: 0.05 },
+    { name: 'Larissa',  a_km: 73548,  e: 0.00139, period_days: 0.5555, color: 0xb8b098, radius: 0.05 },
+    { name: 'Proteus',  a_km: 117647, e: 0.00053, period_days: 1.1223, color: 0xc0b8a0, radius: 0.08 },
+    { name: 'Triton',   a_km: 354759, e: 0.000016, period_days: -5.877, color: 0xd0cab8, radius: 0.10 },
+  ];
 
-  // Triton mesh + orbit line are grouped so the sidebar can toggle the
-  // whole "Triton" layer (mesh plus its trajectory polyline) as one.
-  var tritonGroup = new THREE.Group();
-  tiltGroup.add(tritonGroup);
+  // One group for all moon meshes, another for their orbit polylines.
+  var moonsGroup = new THREE.Group();
+  var moonOrbitsGroup = new THREE.Group();
+  tiltGroup.add(moonsGroup);
+  tiltGroup.add(moonOrbitsGroup);
 
-  var tritonMesh = new THREE.Mesh(
-    new THREE.SphereGeometry(TRITON.radius, 24, 16),
-    new THREE.MeshStandardMaterial({ color: TRITON.color, roughness: 0.85 })
-  );
-  tritonGroup.add(tritonMesh);
-  (function tritonOrbit() {
+  var moonMeshes = [];
+  NEPTUNE_MOONS.forEach(function(m) {
+    m.a = m.a_km / SCENE_UNIT_KM;
+    m.period = m.period_days * 86400;
+    var mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(m.radius, 20, 14),
+      new THREE.MeshStandardMaterial({ color: m.color, roughness: 0.85 })
+    );
+    moonsGroup.add(mesh);
+    m.mesh = mesh;
+    moonMeshes.push(m);
     var pts = [];
     for (var k = 0; k <= 128; k++) {
       var th = (k / 128) * Math.PI * 2;
-      pts.push(new THREE.Vector3(TRITON.a * Math.cos(th), 0, TRITON.a * Math.sin(th)));
+      pts.push(new THREE.Vector3(m.a * Math.cos(th), 0, m.a * Math.sin(th)));
     }
-    tritonGroup.add(new THREE.Line(
+    moonOrbitsGroup.add(new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(pts),
-      new THREE.LineBasicMaterial({ color: TRITON.color, transparent: true, opacity: 0.35 })
+      new THREE.LineBasicMaterial({ color: m.color, transparent: true, opacity: 0.35 })
     ));
+  });
+
+  // ═══ GREAT DARK SPOT ═══
+  // The Voyager 2 1989 Great Dark Spot was an anticyclone at ~22S, 15W.
+  // Modern observations show similar storms appear periodically; the
+  // marker represents this atmospheric feature class. Parented to planet
+  // so it rotates with Neptunes 16h 6m sidereal spin.
+  var darkSpotGroup = new THREE.Group();
+  planet.add(darkSpotGroup);
+  (function darkSpot() {
+    var lat = -22 * Math.PI / 180;
+    var lon = -15 * Math.PI / 180;
+    var r = 1.52;
+    var mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(0.09, 16, 12),
+      new THREE.MeshBasicMaterial({ color: 0x1a2355 })
+    );
+    mesh.position.set(
+      r * Math.cos(lat) * Math.cos(lon),
+      r * Math.sin(lat),
+      r * Math.cos(lat) * Math.sin(lon)
+    );
+    darkSpotGroup.add(mesh);
   })();
 
   // ═══ NEPTUNE RING ARCS (5 narrow arcs in the Adams ring) ═══
@@ -325,12 +353,14 @@
   function updateMoons() {
     var TIME_SCALE = 60;
     var simTime = (Date.now() / 1000 - SCENE_EPOCH_SEC) * TIME_SCALE;
-    var n = (Math.PI * 2) / TRITON.period;  // negative n -> retrograde direction
-    var M = (n * simTime) % (Math.PI * 2);
-    var E = solveKepler(M, TRITON.e);
-    var nu = 2 * Math.atan2(Math.sqrt(1 + TRITON.e) * Math.sin(E/2), Math.sqrt(1 - TRITON.e) * Math.cos(E/2));
-    var r = TRITON.a * (1 - TRITON.e * Math.cos(E));
-    tritonMesh.position.set(r * Math.cos(nu), 0, r * Math.sin(nu));
+    moonMeshes.forEach(function(m) {
+      var n = (Math.PI * 2) / m.period;  // negative for retrograde Triton
+      var M = (n * simTime) % (Math.PI * 2);
+      var E = solveKepler(M, m.e);
+      var nu = 2 * Math.atan2(Math.sqrt(1 + m.e) * Math.sin(E/2), Math.sqrt(1 - m.e) * Math.cos(E/2));
+      var r = m.a * (1 - m.e * Math.cos(E));
+      m.mesh.position.set(r * Math.cos(nu), 0, r * Math.sin(nu));
+    });
   }
 
 
@@ -461,11 +491,13 @@
 
   // ═══ INTERACTIVE LAYER LIST ═══
   var LAYERS = [
-    { id: 'surface', name: 'Neptune surface', desc: '2K Voyager 2 ISS archive', visible: true },
-    { id: 'triton',  name: 'Triton',          desc: 'Retrograde moon, 5.877-day orbit', visible: true },
-    { id: 'rings',   name: 'Adams ring arcs', desc: 'Courage, Liberte, Egalite, Fraternite', visible: true },
-    { id: 'context', name: 'Solar System context', desc: 'Directions to each major body', visible: true },
-    { id: 'stars',   name: 'Starfield',       desc: 'Procedural background stars', visible: true },
+    { id: 'surface',  name: 'Neptune surface',  desc: '2K Voyager 2 ISS archive', visible: true },
+    { id: 'darkspot', name: 'Great Dark Spot',  desc: 'Voyager 2 1989 anticyclone region', visible: true },
+    { id: 'moons',    name: 'Major moons',      desc: 'Despina, Galatea, Larissa, Proteus, Triton', visible: true },
+    { id: 'orbits',   name: 'Moon orbits',      desc: 'Kepler paths (Triton retrograde)', visible: true },
+    { id: 'rings',    name: 'Adams ring arcs',  desc: 'Courage, Liberte, Egalite, Fraternite', visible: true },
+    { id: 'context',  name: 'Solar System context', desc: 'Directions to each major body', visible: true },
+    { id: 'stars',    name: 'Starfield',        desc: 'Procedural background stars', visible: true },
   ];
 
   function setLayerVisible(id, on) {
@@ -473,11 +505,13 @@
     if (!l) return;
     l.visible = on;
     switch (id) {
-      case 'surface': planet.visible = on; break;
-      case 'triton':  tritonGroup.visible = on; break;
-      case 'rings':   ringsGroup.visible = on; break;
-      case 'context': if (solarSystemGroup) solarSystemGroup.visible = on; break;
-      case 'stars':   if (starfield) starfield.visible = on; break;
+      case 'surface':  planet.visible = on; break;
+      case 'darkspot': darkSpotGroup.visible = on; break;
+      case 'moons':    moonsGroup.visible = on; break;
+      case 'orbits':   moonOrbitsGroup.visible = on; break;
+      case 'rings':    ringsGroup.visible = on; break;
+      case 'context':  if (solarSystemGroup) solarSystemGroup.visible = on; break;
+      case 'stars':    if (starfield) starfield.visible = on; break;
     }
     renderLayerList();
   }
