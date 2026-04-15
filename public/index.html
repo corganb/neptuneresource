@@ -124,6 +124,16 @@
 
   /* Toast */
   #rs-toast { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); z-index: 300; background: rgba(14,16,20,0.92); backdrop-filter: blur(12px); border: 1px solid var(--b2); border-radius: 8px; padding: 8px 18px; font-size: 12px; color: var(--t1); pointer-events: none; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+
+  /* Interactive layer list (shared pattern across all planet sites) */
+  .ly-item { display: flex; gap: 8px; align-items: flex-start; padding: 6px 4px; border-bottom: 1px dashed rgba(255,255,255,0.04); cursor: pointer; user-select: none; }
+  .ly-item:hover { background: rgba(255,255,255,0.02); }
+  .ly-check { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--b2); flex-shrink: 0; margin-top: 2px; background: transparent; cursor: pointer; position: relative; }
+  .ly-check.on { background: var(--accent); border-color: var(--accent); }
+  .ly-check.on::after { content: ''; position: absolute; left: 3px; top: 0px; width: 5px; height: 9px; border: solid #000; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+  .ly-body { flex: 1; min-width: 0; }
+  .ly-name { font-size: 11.5px; color: var(--t2); font-weight: 500; }
+  .ly-desc { font-size: 9.5px; color: var(--t4); margin-top: 2px; line-height: 1.35; }
 </style>
 </head>
 <body>
@@ -160,10 +170,8 @@
     <div class="info-row"><span>Sidereal day</span><span>16h 6m</span></div>
     <div class="info-row"><span>Dist. from Sun</span><span>4.50 B km (30.05 AU)</span></div>
 
-    <h3>Scientific Layers</h3>
-    <div class="info-row"><span>Neptune surface</span><span style="font-size:9.5px;text-align:right">2K Voyager 2 ISS (best available)</span></div>
-    <div class="info-row"><span>Triton</span><span style="font-size:9.5px;text-align:right">Retrograde orbit, ~354,759 km, 5.877 d</span></div>
-    <div class="info-row"><span>Adams ring arcs</span><span style="font-size:9.5px;text-align:right">Courage, Liberté, Égalité x2, Fraternité</span></div>
+    <h3>Layers</h3>
+    <div id="layer-list"></div>
 
 
     <h3>Resource Systems</h3>
@@ -186,7 +194,7 @@
   <div class="statusbar-cell"><span class="label">FRAME</span><span class="value">Body-Fixed</span></div>
   <div class="statusbar-cell"><span class="label">BODY</span><span class="value">Neptune</span></div>
   <div class="sb-cells-right">
-    <div class="statusbar-cell"><span class="label">VERSION</span><span class="value">v0.1</span></div>
+    <div class="statusbar-cell"><span class="label">VERSION</span><span class="value">v0.2</span></div>
   </div>
 </div>
 
@@ -255,29 +263,34 @@
   TRITON.a = TRITON.a_km / SCENE_UNIT_KM;
   TRITON.period = TRITON.period_days * 86400;
 
+  // Triton mesh + orbit line are grouped so the sidebar can toggle the
+  // whole "Triton" layer (mesh plus its trajectory polyline) as one.
+  var tritonGroup = new THREE.Group();
+  tiltGroup.add(tritonGroup);
+
   var tritonMesh = new THREE.Mesh(
     new THREE.SphereGeometry(TRITON.radius, 24, 16),
     new THREE.MeshStandardMaterial({ color: TRITON.color, roughness: 0.85 })
   );
-  tiltGroup.add(tritonMesh);
-  // Triton orbit line (retrograde, visualized as the same ring)
+  tritonGroup.add(tritonMesh);
   (function tritonOrbit() {
     var pts = [];
     for (var k = 0; k <= 128; k++) {
       var th = (k / 128) * Math.PI * 2;
       pts.push(new THREE.Vector3(TRITON.a * Math.cos(th), 0, TRITON.a * Math.sin(th)));
     }
-    tiltGroup.add(new THREE.Line(
+    tritonGroup.add(new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(pts),
       new THREE.LineBasicMaterial({ color: TRITON.color, transparent: true, opacity: 0.35 })
     ));
   })();
 
   // ═══ NEPTUNE RING ARCS (5 narrow arcs in the Adams ring) ═══
-  // Adams ring at ~62,932 km = 3.83 units
+  // Adams ring at ~62,932 km. Arcs grouped so the sidebar can toggle them.
+  var ringsGroup = new THREE.Group();
+  tiltGroup.add(ringsGroup);
   (function ringArcs() {
     var arcR = 62932 / SCENE_UNIT_KM;
-    // 5 narrow arc segments (Courage, Liberte, Egalite 1, Egalite 2, Fraternite)
     var arcs = [
       { start: 0,   end: 10 },
       { start: 15,  end: 25 },
@@ -291,7 +304,7 @@
         var th = (a.start + (a.end - a.start) * (k / 32)) * Math.PI / 180;
         pts.push(new THREE.Vector3(arcR * Math.cos(th), 0, arcR * Math.sin(th)));
       }
-      tiltGroup.add(new THREE.Line(
+      ringsGroup.add(new THREE.Line(
         new THREE.BufferGeometry().setFromPoints(pts),
         new THREE.LineBasicMaterial({ color: 0x8899bb, transparent: true, opacity: 0.6 })
       ));
@@ -404,7 +417,8 @@
     solarSystemGroup.visible = true;
   })();
 
-  // Subtle starfield
+  // Subtle starfield (toggleable)
+  var starfield;
   (function stars() {
     var geo = new THREE.BufferGeometry();
     var count = 3000;
@@ -419,7 +433,8 @@
     }
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     var mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.8, sizeAttenuation: false, transparent: true, opacity: 0.8 });
-    scene.add(new THREE.Points(geo, mat));
+    starfield = new THREE.Points(geo, mat);
+    scene.add(starfield);
   })();
 
   // Controls
@@ -429,14 +444,12 @@
   controls.minDistance = 2.2;
   controls.maxDistance = 300;
 
-  // Resize
   window.addEventListener('resize', function () {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  // Animate
   function tick() {
     requestAnimationFrame(tick);
     planet.rotation.y += 0.0001083;
@@ -445,6 +458,50 @@
     renderer.render(scene, camera);
   }
   tick();
+
+  // ═══ INTERACTIVE LAYER LIST ═══
+  var LAYERS = [
+    { id: 'surface', name: 'Neptune surface', desc: '2K Voyager 2 ISS archive', visible: true },
+    { id: 'triton',  name: 'Triton',          desc: 'Retrograde moon, 5.877-day orbit', visible: true },
+    { id: 'rings',   name: 'Adams ring arcs', desc: 'Courage, Liberte, Egalite, Fraternite', visible: true },
+    { id: 'context', name: 'Solar System context', desc: 'Directions to each major body', visible: true },
+    { id: 'stars',   name: 'Starfield',       desc: 'Procedural background stars', visible: true },
+  ];
+
+  function setLayerVisible(id, on) {
+    var l = LAYERS.find(function(x) { return x.id === id; });
+    if (!l) return;
+    l.visible = on;
+    switch (id) {
+      case 'surface': planet.visible = on; break;
+      case 'triton':  tritonGroup.visible = on; break;
+      case 'rings':   ringsGroup.visible = on; break;
+      case 'context': if (solarSystemGroup) solarSystemGroup.visible = on; break;
+      case 'stars':   if (starfield) starfield.visible = on; break;
+    }
+    renderLayerList();
+  }
+
+  function renderLayerList() {
+    var list = document.getElementById('layer-list');
+    if (!list) return;
+    var html = '';
+    LAYERS.forEach(function(l) {
+      html += '<div class="ly-item" data-layer="' + l.id + '">' +
+              '<div class="ly-check ' + (l.visible ? 'on' : '') + '"></div>' +
+              '<div class="ly-body"><div class="ly-name">' + l.name + '</div><div class="ly-desc">' + l.desc + '</div></div>' +
+              '</div>';
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('.ly-item').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var id = el.getAttribute('data-layer');
+        var l = LAYERS.find(function(x) { return x.id === id; });
+        if (l) setLayerVisible(id, !l.visible);
+      });
+    });
+  }
+  renderLayerList();
 
 })();
 
