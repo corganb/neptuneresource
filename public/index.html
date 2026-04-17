@@ -263,7 +263,7 @@
 
   planet.userData = { _analysis: {
     name: 'Neptune', type: 'Ice giant planet',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg/220px-Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg',
+    image: 'https://terraresource.net/assets/planet-textures/2k_neptune.jpg',
     desc: 'Most distant planet. Strongest sustained winds in the Solar System (2,100 km/h). Discovered 1846 by mathematical prediction. Only visited by Voyager 2 in 1989.',
     fields: [{label:'Radius',value:'24,622 km'},{label:'Mass',value:'1.024 x 10\u00B2\u2076 kg'},{label:'Moons',value:'16 known'},{label:'Wind speed',value:'up to 2,100 km/h'},{label:'Orbital period',value:'164.8 years'},{label:'Sidereal day',value:'16h 6m'}],
   }};
@@ -318,7 +318,7 @@
     m.mesh = mesh;
     moonMeshes.push(m);
     var NEPTUNE_MOON_DATA = {
-      Triton:   { type: 'Major moon (retrograde)', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Triton_moon_mosaic_Voyager_2_%28large%29.jpg/220px-Triton_moon_mosaic_Voyager_2_%28large%29.jpg', desc: 'Largest moon of Neptune. Only large moon with a retrograde orbit - likely a captured Kuiper Belt object. Active nitrogen geysers on the surface. Thin nitrogen atmosphere.', fields: [{label:'Radius',value:'1,353 km'},{label:'Orbit',value:'354,759 km'},{label:'Period',value:'5.88 days (retrograde)'},{label:'Surface temp',value:'-235 C'},{label:'Geysers',value:'Nitrogen (Voyager 2)'}] },
+      Triton:   { type: 'Major moon (retrograde)', desc: 'Largest moon of Neptune. Only large moon with a retrograde orbit - likely a captured Kuiper Belt object. Active nitrogen geysers on the surface. Thin nitrogen atmosphere.', fields: [{label:'Radius',value:'1,353 km'},{label:'Orbit',value:'354,759 km'},{label:'Period',value:'5.88 days (retrograde)'},{label:'Surface temp',value:'-235 C'},{label:'Geysers',value:'Nitrogen (Voyager 2)'}] },
       Proteus:  { type: 'Inner moon', desc: 'Second largest moon of Neptune. Irregularly shaped, dark surface. Too small for gravity to pull it into a sphere.', fields: [{label:'Dimensions',value:'~420 km'},{label:'Orbit',value:'117,647 km'},{label:'Period',value:'1.12 days'}] },
       Larissa:  { type: 'Inner moon', desc: 'Irregular inner moon discovered by Voyager 2 in 1989.', fields: [{label:'Dimensions',value:'~194 km'},{label:'Orbit',value:'73,548 km'},{label:'Period',value:'0.56 days'}] },
       Galatea:  { type: 'Inner moon', desc: 'Shepherding moon for the Adams ring. Its gravitational influence confines ring material into arcs.', fields: [{label:'Dimensions',value:'~176 km'},{label:'Orbit',value:'61,953 km'},{label:'Period',value:'0.43 days'}] },
