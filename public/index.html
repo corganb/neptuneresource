@@ -317,6 +317,16 @@
     moonsGroup.add(mesh);
     m.mesh = mesh;
     moonMeshes.push(m);
+    var NEPTUNE_MOON_DATA = {
+      Triton:   { type: 'Major moon (retrograde)', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Triton_moon_mosaic_Voyager_2_%28large%29.jpg/220px-Triton_moon_mosaic_Voyager_2_%28large%29.jpg', desc: 'Largest moon of Neptune. Only large moon with a retrograde orbit - likely a captured Kuiper Belt object. Active nitrogen geysers on the surface. Thin nitrogen atmosphere.', fields: [{label:'Radius',value:'1,353 km'},{label:'Orbit',value:'354,759 km'},{label:'Period',value:'5.88 days (retrograde)'},{label:'Surface temp',value:'-235 C'},{label:'Geysers',value:'Nitrogen (Voyager 2)'}] },
+      Proteus:  { type: 'Inner moon', desc: 'Second largest moon of Neptune. Irregularly shaped, dark surface. Too small for gravity to pull it into a sphere.', fields: [{label:'Dimensions',value:'~420 km'},{label:'Orbit',value:'117,647 km'},{label:'Period',value:'1.12 days'}] },
+      Larissa:  { type: 'Inner moon', desc: 'Irregular inner moon discovered by Voyager 2 in 1989.', fields: [{label:'Dimensions',value:'~194 km'},{label:'Orbit',value:'73,548 km'},{label:'Period',value:'0.56 days'}] },
+      Galatea:  { type: 'Inner moon', desc: 'Shepherding moon for the Adams ring. Its gravitational influence confines ring material into arcs.', fields: [{label:'Dimensions',value:'~176 km'},{label:'Orbit',value:'61,953 km'},{label:'Period',value:'0.43 days'}] },
+      Despina:  { type: 'Inner moon', desc: 'Small irregular inner moon just inside the Le Verrier ring.', fields: [{label:'Dimensions',value:'~150 km'},{label:'Orbit',value:'52,526 km'},{label:'Period',value:'0.33 days'}] },
+    };
+    var nd = NEPTUNE_MOON_DATA[m.name];
+    if (nd) mesh.userData = { _analysis: { name: m.name, type: nd.type, image: nd.image, desc: nd.desc, fields: nd.fields, icon: '\uD83C\uDF15' } };
+
 
     var hex = '#' + m.color.toString(16).padStart(6, '0');
     var label = makeMoonLabel(m.name, hex);
