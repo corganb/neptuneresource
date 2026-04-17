@@ -217,7 +217,7 @@
 <!-- Three.js (via jsdelivr UMD) -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
-<script src="resource-systems-core.js?v=14"></script>
+<script src="resource-systems-core.js?v=15"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
@@ -260,6 +260,14 @@
   tiltGroup.rotation.z = 0.494277; // 28.32 deg axial tilt
   scene.add(tiltGroup);
   tiltGroup.add(planet);
+
+  planet.userData = { _analysis: {
+    name: 'Neptune', type: 'Ice giant planet',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg/220px-Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg',
+    desc: 'Most distant planet. Strongest sustained winds in the Solar System (2,100 km/h). Discovered 1846 by mathematical prediction. Only visited by Voyager 2 in 1989.',
+    fields: [{label:'Radius',value:'24,622 km'},{label:'Mass',value:'1.024 x 10\u00B2\u2076 kg'},{label:'Moons',value:'16 known'},{label:'Wind speed',value:'up to 2,100 km/h'},{label:'Orbital period',value:'164.8 years'},{label:'Sidereal day',value:'16h 6m'}],
+  }};
+
 
   // ═══ NEPTUNE MOONS ═══
   // Scene scale: Neptune radius 1.5 = 24622 km real, so 1 unit = 16,415 km.
@@ -606,6 +614,41 @@
     });
   })();
 
+
+
+  // ═══ ANALYSIS PANEL CLICK HANDLER ═══
+  (function wireAnalysis() {
+    var rc = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    canvas.addEventListener('click', function(ev) {
+      if (!window.RS || !RS.showAnalysisPanel) return;
+      var rect = canvas.getBoundingClientRect();
+      mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+      rc.setFromCamera(mouse, camera);
+      var targets = [];
+      // Collect all meshes in tiltGroup (moons, spacecraft, markers)
+      tiltGroup.traverse(function(obj) {
+        if (obj.isMesh && obj.userData && obj.userData._analysis) targets.push(obj);
+      });
+      // Also check planet itself
+      if (planet && planet.userData && planet.userData._analysis) targets.push(planet);
+      // Check scene-level groups
+      scene.traverse(function(obj) {
+        if (obj.isMesh && obj.userData && obj.userData._analysis && targets.indexOf(obj) === -1) targets.push(obj);
+      });
+      var hits = rc.intersectObjects(targets, true);
+      if (!hits.length) return;
+      var obj = hits[0].object;
+      for (var i = 0; i < 5; i++) {
+        if (obj.userData && obj.userData._analysis) break;
+        if (obj.parent) obj = obj.parent; else break;
+      }
+      if (obj.userData && obj.userData._analysis) {
+        RS.showAnalysisPanel(obj.userData._analysis);
+      }
+    });
+  })();
 
   // ═══ RESET VIEW BUTTON ═══
   // Captures the initial camera position/target and resets to it on click.
