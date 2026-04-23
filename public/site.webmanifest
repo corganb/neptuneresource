@@ -1,0 +1,29 @@
+{
+  "name": "NeptuneResource",
+  "short_name": "Neptune",
+  "description": "NeptuneResource by Corgan Studio",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#3b5fe2",
+  "background_color": "#060b1f",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
