@@ -284,12 +284,13 @@
   // Galatea, Larissa, Proteus are inner regular moons just outside the
   // Adams ring.
   var SCENE_UNIT_KM = 24622 / 1.5;
+  var NEPTUNE_TILT_RAD = 0.494277; // 28.32 deg, matches tiltGroup.rotation.z
   var NEPTUNE_MOONS = [
-    { name: 'Despina',  a_km: 52526,  e: 0.00014, period_days: 0.3347, color: 0xb0a890, radius: 0.04 },
-    { name: 'Galatea',  a_km: 61953,  e: 0.00008, period_days: 0.4287, color: 0xb8b098, radius: 0.05 },
-    { name: 'Larissa',  a_km: 73548,  e: 0.00139, period_days: 0.5555, color: 0xb8b098, radius: 0.05 },
-    { name: 'Proteus',  a_km: 117647, e: 0.00053, period_days: 1.1223, color: 0xc0b8a0, radius: 0.08 },
-    { name: 'Triton',   a_km: 354759, e: 0.000016, period_days: -5.877, color: 0xd0cab8, radius: 0.10 },
+    { name: 'Despina',  slug: 'despina',  a_km: 52526,  e: 0.00014, period_days: 0.3347, color: 0xb0a890, radius: 0.04 },
+    { name: 'Galatea',  slug: 'galatea',  a_km: 61953,  e: 0.00008, period_days: 0.4287, color: 0xb8b098, radius: 0.05 },
+    { name: 'Larissa',  slug: 'larissa',  a_km: 73548,  e: 0.00139, period_days: 0.5555, color: 0xb8b098, radius: 0.05 },
+    { name: 'Proteus',  slug: 'proteus',  a_km: 117647, e: 0.00053, period_days: 1.1223, color: 0xc0b8a0, radius: 0.08 },
+    { name: 'Triton',   slug: 'triton',   a_km: 354759, e: 0.000016, period_days: -5.877, color: 0xd0cab8, radius: 0.10 },
   ];
 
   // One group for all moon meshes, another for their orbit polylines.
@@ -351,7 +352,40 @@
       new THREE.BufferGeometry().setFromPoints(pts),
       new THREE.LineBasicMaterial({ color: m.color, transparent: true, opacity: 0.35 })
     ));
+    m.phase = 0;
   });
+
+  // ═══ REAL MOON POSITIONS (JPL Horizons via Supabase edge fn) ═══
+  (function fetchMoonPositions() {
+    var FN_BASE = 'https://pxocavaczfjcpvqeiznt.supabase.co/functions/v1/horizons-ephemeris';
+    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4b2NhdmFjemZqY3B2cWVpem50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDA3MDcsImV4cCI6MjA5MDExNjcwN30.48A2xW4YoGCESsVurxmW3MP9x_lq2AJ8XeS8nR2RVGI';
+    var ca = Math.cos(NEPTUNE_TILT_RAD), sa = Math.sin(NEPTUNE_TILT_RAD);
+    moonMeshes.forEach(function(m) {
+      if (!m.slug) return;
+      fetch(FN_BASE + '?id=' + m.slug + '&center=' + encodeURIComponent('@neptune'), {
+        headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
+      })
+      .then(function(r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+      .then(function(data) {
+        if (!data || !isFinite(data.x_km)) return;
+        var wx = data.x_km / SCENE_UNIT_KM;
+        var wy = data.z_km / SCENE_UNIT_KM;
+        var wz = -data.y_km / SCENE_UNIT_KM;
+        var lx = wx * ca + wy * sa;
+        var lz = wz;
+        var theta = Math.atan2(lz, lx);
+        var E = 2 * Math.atan(Math.sqrt((1 - m.e) / (1 + m.e)) * Math.tan(theta / 2));
+        var M = E - m.e * Math.sin(E);
+        var simAtAnchor = (window.__rs_sim_time || 0);
+        var n = (Math.PI * 2) / m.period;
+        m.phase = M - n * simAtAnchor;
+        m.real_xyz = { x: lx, y: 0, z: lz, epoch_cal: data.epoch_cal };
+      })
+      .catch(function(err) {
+        if (window.console) console.warn('[horizons] ' + m.name + ': ' + err.message);
+      });
+    });
+  })();
 
   // ═══ GREAT DARK SPOT ═══
   // The Voyager 2 1989 Great Dark Spot was an anticyclone at ~22S, 15W.
@@ -423,7 +457,7 @@
     var simTime = __rs_sim_time;
     moonMeshes.forEach(function(m) {
       var n = (Math.PI * 2) / m.period;  // negative for retrograde Triton
-      var M = (n * simTime) % (Math.PI * 2);
+      var M = ((m.phase || 0) + n * simTime) % (Math.PI * 2);
       var E = solveKepler(M, m.e);
       var nu = 2 * Math.atan2(Math.sqrt(1 + m.e) * Math.sin(E/2), Math.sqrt(1 - m.e) * Math.cos(E/2));
       var r = m.a * (1 - m.e * Math.cos(E));
