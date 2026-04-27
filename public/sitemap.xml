@@ -4,5 +4,22 @@
   <url><loc>https://neptuneresource.net/faq</loc><lastmod>2026-04-24</lastmod></url>
   <url><loc>https://neptuneresource.net/privacy</loc><lastmod>2026-04-24</lastmod></url>
   <url><loc>https://neptuneresource.net/terms</loc><lastmod>2026-04-24</lastmod></url>
-  <url><loc>https://neptuneresource.net/wiki</loc><lastmod>2026-04-24</lastmod></url>
+  <url>
+    <loc>https://neptuneresource.net/research</loc>
+    <lastmod>2026-04-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://neptuneresource.net/research/triton-retrograde-orbit</loc>
+    <lastmod>2026-04-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://neptuneresource.net/research/neptune-storm-lifecycles</loc>
+    <lastmod>2026-04-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
