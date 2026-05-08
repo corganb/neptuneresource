@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neptune interior heat balance and excess luminosity | NeptuneResource Research Archive</title>
+<meta name="description" content="Review of Neptune&#x27;s measured 2.6x excess thermal luminosity over absorbed solar flux, the implications for interior structure and convection, and the contrast with Uranus&#x27;s measured zero or negative excess luminosity.">
+<link rel="canonical" href="/research/neptune-interior-heat">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Neptune interior heat balance and excess luminosity">
+<meta property="og:description" content="Review of Neptune&#x27;s measured 2.6x excess thermal luminosity over absorbed solar flux, the implications for interior structure and convection, and the contrast with Uranus&#x27;s measured zero or negative excess luminosity.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-04-28">
+<meta property="article:author" content="Corgan Studio, Inc.">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0c10; color: rgba(245,248,255,0.95); font-family: 'JetBrains Mono', 'SF Mono', monospace; line-height: 1.7; }
+  .container { max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; }
+  .back { display: inline-block; color: #4060d4; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; margin-bottom: 32px; opacity: 0.7; }
+  .back:hover { opacity: 1; }
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 10px; color: #4060d4; line-height: 1.25; }
+  .abstract { font-size: 14px; color: rgba(200,210,230,0.85); margin-bottom: 16px; max-width: 700px; }
+  .meta { font-size: 11px; color: rgba(160,172,200,0.55); letter-spacing: 0.04em; margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  article h2 { font-size: 13px; font-weight: 600; color: #4060d4; margin: 32px 0 12px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
+  article p { font-size: 14px; color: rgba(220,228,242,0.9); margin-bottom: 14px; }
+  article p strong { color: rgba(245,248,255,1); }
+  .refs { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .refs h2 { font-size: 12px; font-weight: 600; color: rgba(180,192,210,0.85); margin-bottom: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .refs ol { list-style: decimal; padding-left: 24px; font-size: 12px; color: rgba(180,192,210,0.78); }
+  .refs li { margin-bottom: 8px; line-height: 1.5; }
+  .refs a { color: rgba(180,210,255,0.85); text-decoration: none; word-break: break-all; }
+  .refs a:hover { color: #4060d4; }
+  .tier-note { margin-top: 32px; padding: 14px 16px; border-radius: 4px; background: rgba(80,140,220,0.08); border: 1px solid rgba(80,140,220,0.30); color: rgba(200,220,245,0.9); font-size: 12px; line-height: 1.6; }
+  .tier-note strong { color: #7eb6ff; }
+  .tier-note .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(80,140,220,0.15); border: 1px solid rgba(80,140,220,0.4); color: #7eb6ff; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 8px; vertical-align: middle; }
+  .tier-note a { color: #7eb6ff; }
+  .footer { margin-top: 48px; font-size: 11px; color: rgba(130,145,175,0.5); display: flex; gap: 16px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .footer a { color: rgba(160,172,200,0.65); text-decoration: none; }
+  .footer a:hover { color: rgba(200,210,230,0.9); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/research" class="back">&larr; Research Archive</a>
+  <h1>Neptune interior heat balance and excess luminosity</h1>
+  <div class="abstract">Review of Neptune&#x27;s measured 2.6x excess thermal luminosity over absorbed solar flux, the implications for interior structure and convection, and the contrast with Uranus&#x27;s measured zero or negative excess luminosity.</div>
+  <div class="meta">2026-04-28 &middot; 6 min read &middot; Reviewed by Corgan Studio, Inc.</div>
+
+  <article>
+
+    <h2>Introduction</h2>
+    <p>Neptune emits approximately 2.6 times more thermal radiation to space than it absorbs from the Sun. The excess luminosity, approximately 0.4 W/m^2 averaged over the planet's surface, must come from internal heat sources: gravitational contraction, radioactive decay, or stored heat from formation. Uranus, despite having approximately the same mass and atmospheric composition as Neptune, emits only the energy it absorbs (and possibly somewhat less). The contrast is one of the major unresolved questions of giant-planet science. This report reviews the measurement record and the proposed mechanisms.</p>
+
+    <h2>Measurement of excess luminosity</h2>
+    <p>The thermal luminosity of Neptune is measured through bolometric infrared observations from Earth, supplemented by Voyager 2 IRIS thermal infrared spectroscopy during the 1989 flyby and by Spitzer Space Telescope and Herschel Space Observatory measurements through the 2000s and 2010s. The combined measurement gives a bolometric brightness temperature of 59.3 K, compared to an equilibrium temperature for the absorbed solar flux of approximately 47 K. The factor of 2.6 ratio is well-determined.</p>
+
+    <h2>Internal energy source candidates</h2>
+    <p>Three principal candidates contribute to Neptune's internal heat budget:</p>
+    <p><strong>Gravitational contraction.</strong> Continued gravitational contraction releases gravitational potential energy as heat. The contraction rate required to produce the observed excess is approximately 1 mm per year, which is consistent with theoretical estimates for an icy giant planet of Neptune's age and composition.</p>
+    <p><strong>Radioactive decay.</strong> Long-lived radioactive isotopes (40K, 232Th, 235U, 238U) in the rocky interior produce a steady heat source. The contribution depends on the rocky-mass fraction; for Neptune's estimated interior structure, radioactive heating contributes approximately 10-20 percent of the observed excess.</p>
+    <p><strong>Stored formation heat.</strong> Heat from the gravitational accretion phase 4.5 billion years ago is partly retained if the interior thermal conductivity is low enough. Models suggest this contributes a substantial fraction of the modern excess but the fraction is uncertain.</p>
+
+    <h2>The Uranus contrast</h2>
+    <p>Uranus shows no significant excess luminosity (the bolometric luminosity is consistent with the absorbed solar flux within measurement uncertainty, approximately 1.06 +/- 0.08). Despite the broadly-similar mass, atmospheric composition, and inferred interior structure between Uranus and Neptune, the heat budgets are dramatically different. Three principal explanations have been proposed:</p>
+    <p><strong>Different formation history.</strong> A giant impact on Uranus (which would also explain the 98-degree axial tilt) could have driven internal mixing that prematurely depleted Uranus's stored formation heat. The tilt and the missing heat would then both be consequences of the same dramatic event.</p>
+    <p><strong>Different convective regime.</strong> Compositional gradients in the interior (driven by phase separation of constituents) could create stable layers that suppress convection. A non-convective Uranus interior would retain heat at depth without releasing it to the surface, while a convective Neptune would do the opposite.</p>
+    <p><strong>Different interior structure.</strong> The icy giant planets have substantial uncertainty in their interior structure, particularly in the ratio of "ices" (water, ammonia, methane) to rock. Different ice/rock ratios produce different thermal profiles and convective behaviour.</p>
+
+    <h2>Convective dynamics</h2>
+    <p>The active heat flux at Neptune drives vigorous atmospheric convection. The Great Dark Spot observed by Voyager 2 (subsequently dispersed and replaced by other dark-spot features in modern HST imagery) and the bright cloud features tracked through HST OPAL observations are dynamic manifestations of the deep convection. Compared to Uranus, Neptune shows substantially more atmospheric activity at a given epoch, consistent with the more vigorous internal energy source.</p>
+
+    <h2>Outlook</h2>
+    <p>The internal heat balance of the icy giants is a leading open question for a future Uranus orbiter (and a possible Neptune-Triton orbiter). The leading observational tests of the proposed mechanisms include: high-resolution gravity-field measurement to constrain the interior density profile, atmospheric noble-gas measurement to constrain formation history, and magnetic-field measurement to constrain the convective dynamo extent. The 2023 Decadal Survey priorities of the Uranus orbiter and the Neptune-Triton mission are partly motivated by these questions.</p>
+  </article>
+
+  <div class="refs">
+    <h2>References</h2>
+    <ol>
+      <li><a href="https://voyager.jpl.nasa.gov/mission/" target="_blank" rel="noopener">NASA Voyager 2 Neptune encounter</a></li>
+      <li><a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/neptunefact.html" target="_blank" rel="noopener">NASA NSSDC Neptune fact sheet</a></li>
+      <li><a href="https://doi.org/10.1029/91JA01087" target="_blank" rel="noopener">Pearl J.C. &amp; Conrath B.J. (1991) The albedo, effective temperature, and energy balance of Neptune. JGR</a></li>
+      <li><a href="https://www.nationalacademies.org/our-work/planetary-science-and-astrobiology-decadal-survey-2023-2032" target="_blank" rel="noopener">Decadal Survey: Origins, Worlds, and Life (2023)</a></li>
+    </ol>
+  </div>
+
+  <div class="tier-note"><span class="pill">Researcher</span><strong>Citation exports.</strong> This article is open and free to read. Researcher tier subscribers can download a citation-ready PDF (with formatted bibliography), BibTeX entry, and persistent article identifier for use in published work. <a href="/">See plans</a>.</div>
+
+  <div class="footer">
+    <a href="/">Home</a>
+    <a href="/research">Research Archive</a>
+    <a href="/faq">FAQ</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+  </div>
+</div>
+</body>
+</html>
